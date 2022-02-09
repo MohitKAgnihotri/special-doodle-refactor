@@ -1,0 +1,10 @@
+Map.o: Map.cpp Map.h Types.h MyQueue.h MyQueue.cpp Statistics.h Logger.h
+MapReduce.o: MapReduce.cpp MapReduce.h Map.h Types.h MyQueue.h \
+  MyQueue.cpp Statistics.h Logger.h Reduce.h pthread_barrier.cpp
+Reduce.o: Reduce.cpp Reduce.h Map.h Types.h MyQueue.h MyQueue.cpp \
+  Statistics.h Logger.h
+Types.o: Types.cpp Types.h
+WordCount.o: WordCount.cpp Types.h MapReduce.h Map.h MyQueue.h \
+  MyQueue.cpp Statistics.h Logger.h Reduce.h
+Logger.o: Logger.cpp Logger.h
+Statistics.o: Statistics.cpp Statistics.h Logger.h

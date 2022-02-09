@@ -1,0 +1,31 @@
+2021-12-07 17:32:06:  Split Statistics: Number of files: 0  |  Number of bytes: 0  |  Number of lines: 0  |  Number of tuples: 0
+2021-12-07 17:32:06:  Processing input file ./Test/pg345.txt
+2021-12-07 17:32:06:  Processing input file ./Test/all.txt0
+2021-12-07 17:32:06:  Processing input file ./Test/all.txt1
+2021-12-07 17:32:06:  Processing input file ./Test/16-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/2814-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/all.txt2
+2021-12-07 17:32:06:  Processing input file ./Test/pg20203.txt
+2021-12-07 17:32:06:  Processing input file ./Test/pg42.txt
+2021-12-07 17:32:06:  Processing input file ./Test/big.txt
+2021-12-07 17:32:06:  Processing input file ./Test/test1.txt
+2021-12-07 17:32:06:  Processing input file ./Test/2600-0.txt
+2021-12-07 17:32:06:  Map Statistics: Number of input tuples: 0  |  Number of output tuples: 0  |  Number of bytes: 0
+2021-12-07 17:32:06:  Suffle Statistics:  Number of tuples: 0  |  Number of keys: 0
+2021-12-07 17:32:06:  Processing input file ./Test/pg1497.txt
+2021-12-07 17:32:06:  Processing input file ./Test/test12.txt
+2021-12-07 17:32:06:  Processing input file ./Test/Quijote.txt
+2021-12-07 17:32:06:  Processing input file ./Test/135-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/74-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/pg2701.txt
+2021-12-07 17:32:06:  Processing input file ./Test/41-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/Beowulf.txt
+2021-12-07 17:32:06:  Processing input file ./Test/4300-0.txt
+2021-12-07 17:32:06:  Processing input file ./Test/pg6130.txt
+2021-12-07 17:32:06:  Processing input file ./Test/pg5200.txt
+2021-12-07 17:32:06:  Processing input file ./Test/SherlockHolmes.txt
+2021-12-07 17:32:10:  Split Statistics: Number of files: 23  |  Number of bytes: 46998744  |  Number of lines: 961394  |  Number of tuples: 961394
+2021-12-07 17:32:15:  Map Statistics: Number of input tuples: 961394  |  Number of output tuples: 961394  |  Number of bytes: 46998744
+2021-12-07 17:32:27:  Suffle Statistics:  Number of tuples: 8489188  |  Number of keys: 8489188
+2021-12-07 17:32:27:  Reduce Statistics:  Number of keys: 0  |  Number of ocurrences: 0  |  Number of bytes: 0
+2021-12-07 17:32:28:  Reduce Statistics:  Number of keys: 106039  |  Number of ocurrences: 7947808  |  Number of bytes: 824039
