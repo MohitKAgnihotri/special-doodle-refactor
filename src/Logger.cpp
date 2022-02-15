@@ -1,11 +1,3 @@
-/* ---------------------------------------------------------------
-Práctica 3
-Código fuente: Logger.cpp
-Grau Informàtica
-49259651E Sergio Beltrán Guerrero 
-48139505E Martí Serratosa Sedó
---------------------------------------------------------------- */
-
 #include "Logger.h"
 #include <time.h>
 #include <sys/stat.h>
@@ -17,35 +9,33 @@ Grau Informàtica
 #define LOGSTRING_FORMAT "%Y-%m-%d %H:%M:%S"
 #define LOGNAME_SIZE 20
 
-using namespace std;
+bool is_logger_init = false;
+static FILE *loggerFile;
+static pthread_mutex_t file_access_lock;
 
-Logger::Logger() {
-    // Creamos el nombre del fichero log con la fecha y hora actual
-    static char name[LOGNAME_SIZE];
-    time_t now = time(0);
-    strftime(name, sizeof(name), LOGNAME_FORMAT, localtime(&now));
-    strcat(name, ".log");
-    
-    // Creamos el fichero de log
-    mkdir("./log", S_IRWXU);
-    loggerFile = fopen(name, "w");
 
-    // Inicializaremos los mutex
-    if (pthread_mutex_init(&lock, NULL) != 0)
+
+
+void write_message_to_log_file(char message [])
+{
+    if (!is_logger_init)
     {
-        printf("\n mutex init failed\n");
-        exit(-1);
+        static char name[LOGNAME_SIZE];
+        time_t now = time(0);
+        strftime(name, sizeof(name), LOGNAME_FORMAT, localtime(&now));
+        strcat(name, ".log");
+
+        mkdir("./log", S_IRWXU);
+        loggerFile = fopen(name, "w");
+
+        if (pthread_mutex_init(&file_access_lock, NULL) != 0)
+        {
+            printf("\n mutex init failed\n");
+            exit(-1);
+        }
+        is_logger_init = true;
     }
-}
-
-Logger::~Logger() {
-    fclose(loggerFile);
-    pthread_mutex_destroy(&lock);
-}
-
-void
-Logger::log(char message []) {
-    pthread_mutex_lock(&lock);
+    pthread_mutex_lock(&file_access_lock);
     static char logMessage[256];
     time_t now = time(0);
     strftime(logMessage, sizeof(logMessage), LOGSTRING_FORMAT, localtime(&now));
@@ -55,6 +45,16 @@ Logger::log(char message []) {
     strcat(logMessage, "\n");
 
     fputs(logMessage, loggerFile);
-    cout << logMessage;
-    pthread_mutex_unlock(&lock);
+    std::cout << logMessage;
+    pthread_mutex_unlock(&file_access_lock);
+}
+
+void finish_writing_message_to_log_file( void )
+{
+    if(is_logger_init)
+    {
+        fclose(loggerFile);
+        pthread_mutex_destroy(&file_access_lock);
+        is_logger_init = false;
+    }
 }

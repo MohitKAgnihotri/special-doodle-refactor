@@ -3,15 +3,7 @@
 
 #include <string>
 
-class Logger {
-    FILE *loggerFile;
-    public:
-    	pthread_mutex_t lock;
-
-        Logger();
-        ~Logger();
-        void log(char message[]);
-};
-typedef class Logger TLogger, *PtrLogger;
+void write_message_to_log_file(char message []) ;
+void finish_writing_message_to_log_file( void );
 
 #endif // LOGGER_H_

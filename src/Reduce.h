@@ -35,7 +35,6 @@ class Reduce
 		~Reduce();
 		PtrStatistics statistics;
 		pthread_mutex_t lock;
-		
 		void AddInputKeys(TMapOuputIterator begin, TMapOuputIterator end);
 		void AddInput(TReduceInputKey key, TReduceInputValue value);
 		TError Run(); 

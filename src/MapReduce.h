@@ -16,7 +16,6 @@ class MapReduce
 	char *OutputPath;
 	TMapFunction MapFunction;
 	TReduceFunction ReduceFunction;
-	PtrLogger logger;
 	PtrStatistics statistics;
 
 	vector<pthread_t> tids;		

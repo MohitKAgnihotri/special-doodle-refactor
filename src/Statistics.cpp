@@ -1,17 +1,10 @@
-/* ---------------------------------------------------------------
-Práctica 3
-Código fuente: Statistics.cpp
-Grau Informàtica
-49259651E Sergio Beltrán Guerrero 
-48139505E Martí Serratosa Sedó
---------------------------------------------------------------- */
-
 #include "Statistics.h"
 #include "Logger.h"
 #include "pthread.h"
 #include "stdlib.h"
 #include "stdio.h"
 #include <cstring>
+#include <mutex>
 
 using namespace std;
 
@@ -39,28 +32,18 @@ struct ReduceStatistics {
     int numBytes;
 };
 
-struct SplitStatistics splitStatistics;
-struct MapStatistics mapStatistics;
-struct SuffleStatistics suffleStatistics;
-struct ReduceStatistics reduceStatistics;
+typedef struct my_statistics
+{
+    struct SplitStatistics splitStatistics;
+    struct MapStatistics mapStatistics;
+    struct SuffleStatistics suffleStatistics;
+    struct ReduceStatistics reduceStatistics;
+}my_statistics_t;
 
-Statistics::Statistics() { 
-    splitStatistics.numFiles = 0;
-    splitStatistics.numBytes = 0;
-    splitStatistics.numLines = 0;
-    splitStatistics.numTuples = 0;
+my_statistics_t my_stat;
 
-    mapStatistics.numInputTuples = 0;
-    mapStatistics.numOutputTuples = 0;
-    mapStatistics.numBytes = 0;
-
-    suffleStatistics.numTuples = 0;
-    suffleStatistics.numKeys = 0;
-
-    reduceStatistics.numKeys = 0;
-    reduceStatistics.numOcurrences = 0;
-    reduceStatistics.numBytes = 0;
-
+Statistics::Statistics() {
+    memset(&my_stat, 0, sizeof(my_statistics_t));
     if (pthread_mutex_init(&lock, NULL) != 0)
     {
         printf("\n mutex init failed\n");
@@ -68,158 +51,76 @@ Statistics::Statistics() {
     }
 };
 
-void
-Statistics::splitAddFile() {
-    pthread_mutex_lock(&lock);
-    splitStatistics.numFiles++;
-    pthread_mutex_unlock(&lock);
+static void increment_statistics (int &statistics, int value) {
+    pthread_mutex_lock(&Statistics::lock);
+    statistics += value;Statistics
+    pthread_mutex_unlock(&Statistics::lock);
 }
 
-void
-Statistics::splitAddBytes(int bytes) {
-    pthread_mutex_lock(&lock);
-    splitStatistics.numBytes += bytes;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::splitAddLine() {
-    pthread_mutex_lock(&lock);
-    splitStatistics.numLines++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::splitAddTuple() {
-    pthread_mutex_lock(&lock);
-    splitStatistics.numTuples++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::printSplitStatistics() {
+void Statistics::printSplitStatistics() {
     pthread_mutex_lock(&lock);
     char title[256];
     sprintf(title, "Split Statistics: ");
     char files[256];
-    sprintf(files, "Number of files: %d  |  ", splitStatistics.numFiles);
+    sprintf(files, "Number of files: %d  |  ", my_stat.splitStatistics.numFiles);
     char bytes[256];
-    sprintf(bytes, "Number of bytes: %d  |  ", splitStatistics.numBytes);
+    sprintf(bytes, "Number of bytes: %d  |  ", my_stat.splitStatistics.numBytes);
     char lines[256];
-    sprintf(lines, "Number of lines: %d  |  ", splitStatistics.numLines);
+    sprintf(lines, "Number of lines: %d  |  ", my_stat.splitStatistics.numLines);
     char tuples[256];
-    sprintf(tuples, "Number of tuples: %d", splitStatistics.numTuples);
+    sprintf(tuples, "Number of tuples: %d", my_stat.splitStatistics.numTuples);
     char *result = strcat(title, files);
     result = strcat(result, bytes);
     result = strcat(result, lines);
     result = strcat(result, tuples);
-    logger->log(result);
+    write_message_to_log_file(result);
     pthread_mutex_unlock(&lock);
 }
 
-void
-Statistics::mapAddInputTuple() {
-    pthread_mutex_lock(&lock);
-    mapStatistics.numInputTuples++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::mapAddOutputTuple(int numTuples) {
-    pthread_mutex_lock(&lock);
-    mapStatistics.numOutputTuples += numTuples;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::mapAddBytes(int bytes) {
-    pthread_mutex_lock(&lock);
-    mapStatistics.numBytes += bytes;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::printMapStatistics() {
+void Statistics::printMapStatistics() {
     pthread_mutex_lock(&lock);
     char title[256];
     sprintf(title, "Map Statistics: ");
     char input[256];
-    sprintf(input, "Number of input tuples: %d  |  ", mapStatistics.numInputTuples);
+    sprintf(input, "Number of input tuples: %d  |  ", my_stat.mapStatistics.numInputTuples);
     char output[256];
-    sprintf(output, "Number of output tuples: %d  |  ", mapStatistics.numOutputTuples);
+    sprintf(output, "Number of output tuples: %d  |  ", my_stat.mapStatistics.numOutputTuples);
     char bytes[256];
-    sprintf(bytes, "Number of bytes: %d", mapStatistics.numBytes);
+    sprintf(bytes, "Number of bytes: %d", my_stat.mapStatistics.numBytes);
     char *result = strcat(title, input);
     result = strcat(result, output);
     result = strcat(result, bytes);
-    logger->log(result);
+    write_message_to_log_file(result);
     pthread_mutex_unlock(&lock);
 }
 
-void
-Statistics::suffleAddTuple() {
-    pthread_mutex_lock(&lock);
-    suffleStatistics.numTuples++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::suffleAddKey() {
-    pthread_mutex_lock(&lock);
-    suffleStatistics.numKeys ++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::printSuffleStatistics() {
+void Statistics::printSuffleStatistics() {
     pthread_mutex_lock(&lock);
     char title[256];
     sprintf(title,"Suffle Statistics:  ");
     char tuples[256];
-    sprintf(tuples, "Number of tuples: %d  |  ", suffleStatistics.numTuples);
+    sprintf(tuples, "Number of tuples: %d  |  ", my_stat.suffleStatistics.numTuples);
     char keys[256];
-    sprintf(keys, "Number of keys: %d", suffleStatistics.numKeys);
+    sprintf(keys, "Number of keys: %d", my_stat.suffleStatistics.numKeys);
     char *result = strcat(title, tuples);
     result = strcat(result, keys);
-    logger->log(result);
+    write_message_to_log_file(result);
     pthread_mutex_unlock(&lock);
 }
 
-void
-Statistics::reduceAddKey() {
-    pthread_mutex_lock(&lock);
-    reduceStatistics.numKeys ++;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::reduceAddOcurrence(int ocurrence) {
-    pthread_mutex_lock(&lock);
-    reduceStatistics.numOcurrences += ocurrence;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::reduceAddBytes(int bytes) {
-    pthread_mutex_lock(&lock);
-    reduceStatistics.numBytes += bytes;
-    pthread_mutex_unlock(&lock);
-}
-
-void
-Statistics::printReduceStatistics() {
+void Statistics::printReduceStatistics() {
     pthread_mutex_lock(&lock);
     char title[256];
     sprintf(title, "Reduce Statistics:  ");
     char keys[256];
-    sprintf(keys, "Number of keys: %d  |  ", reduceStatistics.numKeys);
+    sprintf(keys, "Number of keys: %d  |  ", my_stat.reduceStatistics.numKeys);
     char ocurrences[256];
-    sprintf(ocurrences, "Number of ocurrences: %d  |  ", reduceStatistics.numOcurrences);
+    sprintf(ocurrences, "Number of ocurrences: %d  |  ", my_stat.reduceStatistics.numOcurrences);
     char bytes[256];
-    sprintf(bytes, "Number of bytes: %d", reduceStatistics.numBytes);
+    sprintf(bytes, "Number of bytes: %d", my_stat.reduceStatistics.numBytes);
     char *result = strcat(title, keys);
     result = strcat(result, ocurrences);
     result = strcat(result, bytes);
-    logger->log(result);
+    write_message_to_log_file(result);
     pthread_mutex_unlock(&lock);
 }
